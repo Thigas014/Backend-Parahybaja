@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/venda_agua}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+  jackson:
+    time-zone: America/Sao_Paulo
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:TROQUE_ESTA_CHAVE_SECRETA_POR_UMA_BEM_LONGA_E_SEGURA_EM_PRODUCAO_123456}
+    expiration-ms: 86400000 # 24h
+
+cors:
+  allowed-origins: ${CORS_ORIGIN:http://localhost:5173}

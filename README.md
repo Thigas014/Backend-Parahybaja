@@ -1,4 +1,4 @@
-#  Venda de Água — Backend
+#  Backend-Parahybaja
 
 API REST em **Java + Spring Boot + Spring Security (JWT) + PostgreSQL** para gerenciar
 vendas, presença, calendário e finanças de uma equipe que vende água aos sábados.

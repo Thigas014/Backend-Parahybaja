@@ -10,7 +10,8 @@ public class ConfiguracaoDtos {
             @NotNull @PositiveOrZero BigDecimal metaFinanceira
     ) {}
 
-    public record TaxaAusenciaRequest(
-            @NotNull @PositiveOrZero BigDecimal valorTaxaAusencia
+    public record TaxasRequest(
+            @NotNull @PositiveOrZero BigDecimal valorTaxaJustificado,
+            @NotNull @PositiveOrZero BigDecimal valorTaxaSemJustificativa
     ) {}
 }

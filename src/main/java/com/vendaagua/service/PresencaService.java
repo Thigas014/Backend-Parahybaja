@@ -4,7 +4,9 @@ import com.vendaagua.dto.PresencaDtos.JustificarAusenciaRequest;
 import com.vendaagua.dto.PresencaDtos.MarcarPresencaRequest;
 import com.vendaagua.exception.RecursoNaoEncontradoException;
 import com.vendaagua.exception.RegraNegocioException;
+import com.vendaagua.model.Configuracao;
 import com.vendaagua.model.Presenca;
+import com.vendaagua.model.StatusPresenca;
 import com.vendaagua.model.Usuario;
 import com.vendaagua.repository.PresencaRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +29,10 @@ public class PresencaService {
 
     /**
      * O proprio membro justifica sua ausencia em uma data. Cria ou atualiza o
-     * registro dele. So pode justificar ANTES da data da venda acontecer —
-     * depois que o dia passou, so o admin pode corrigir a lista de presenca.
+     * registro dele, deixando SOMENTE a justificativa preenchida — o status
+     * fica em branco (null), esperando o admin avaliar e decidir entre
+     * JUSTIFICADO ou AUSENTE. So pode justificar ANTES da data da venda
+     * acontecer — depois que o dia passou, so o admin pode corrigir.
      */
     public Presenca justificarAusencia(Usuario usuario, JustificarAusenciaRequest request) {
         if (request.data().isBefore(LocalDate.now())) {
@@ -43,14 +47,20 @@ public class PresencaService {
                         .build());
 
         presenca.setJustificativa(request.justificativa());
-        // Se o admin ainda nao marcou nada, a justificativa ja indica ausencia.
-        if (presenca.getPresente() == null) {
-            presenca.setPresente(false);
-        }
+        // Nao mexe no status: fica pendente (null) ate o admin avaliar,
+        // mesmo que ja exista um status anterior (o admin pode reavaliar).
         return presencaRepository.save(presenca);
     }
 
-    /** Admin marca presenca/ausencia oficial. Se ausente, aplica a taxa configurada (travada nesse momento). */
+    /**
+     * Admin define o status oficial de um membro numa data: PRESENTE,
+     * JUSTIFICADO ou AUSENTE. A taxa aplicada depende do status:
+     *  - JUSTIFICADO -> valorTaxaJustificado
+     *  - AUSENTE -> valorTaxaSemJustificativa
+     *  - PRESENTE -> sem taxa (remove taxa pendente, mantem se ja paga)
+     * O valor e travado no momento da decisao (nao muda se o admin alterar
+     * a configuracao das taxas depois).
+     */
     public Presenca marcarPresenca(MarcarPresencaRequest request, Usuario membro) {
         Presenca presenca = presencaRepository.findByDataAndUsuario(request.data(), membro)
                 .orElseGet(() -> Presenca.builder()
@@ -58,16 +68,26 @@ public class PresencaService {
                         .usuario(membro)
                         .build());
 
-        presenca.setPresente(request.presente());
+        presenca.setStatus(request.status());
 
-        if (!request.presente()) {
-            if (presenca.getTaxaValor() == null) {
-                presenca.setTaxaValor(configuracaoService.obterConfiguracao().getValorTaxaAusencia());
+        Configuracao configuracao = configuracaoService.obterConfiguracao();
+
+        switch (request.status()) {
+            case JUSTIFICADO -> {
+                if (presenca.getTaxaValor() == null || !Boolean.TRUE.equals(presenca.getTaxaPaga())) {
+                    presenca.setTaxaValor(configuracao.getValorTaxaJustificado());
+                }
             }
-        } else {
-            // Virou presente: remove taxa pendente (mas mantem se ja tiver sido paga, para nao sumir do historico).
-            if (!Boolean.TRUE.equals(presenca.getTaxaPaga())) {
-                presenca.setTaxaValor(null);
+            case AUSENTE -> {
+                if (presenca.getTaxaValor() == null || !Boolean.TRUE.equals(presenca.getTaxaPaga())) {
+                    presenca.setTaxaValor(configuracao.getValorTaxaSemJustificativa());
+                }
+            }
+            case PRESENTE -> {
+                // Vira presente: remove taxa pendente (mas mantem se ja tiver sido paga, pra nao sumir do historico).
+                if (!Boolean.TRUE.equals(presenca.getTaxaPaga())) {
+                    presenca.setTaxaValor(null);
+                }
             }
         }
 

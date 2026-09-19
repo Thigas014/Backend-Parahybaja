@@ -1,5 +1,6 @@
 package com.vendaagua.dto;
 
+import com.vendaagua.model.StatusPresenca;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,10 +14,10 @@ public class PresencaDtos {
             @NotBlank String justificativa
     ) {}
 
-    /** Admin marca presenca/ausencia oficial de um membro. */
+    /** Admin define o status oficial (PRESENTE, JUSTIFICADO ou AUSENTE) de um membro. */
     public record MarcarPresencaRequest(
             @NotNull Long usuarioId,
             @NotNull LocalDate data,
-            @NotNull Boolean presente
+            @NotNull StatusPresenca status
     ) {}
 }

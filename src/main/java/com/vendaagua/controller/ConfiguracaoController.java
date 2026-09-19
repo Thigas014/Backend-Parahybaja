@@ -1,7 +1,7 @@
 package com.vendaagua.controller;
 
 import com.vendaagua.dto.ConfiguracaoDtos.MetaRequest;
-import com.vendaagua.dto.ConfiguracaoDtos.TaxaAusenciaRequest;
+import com.vendaagua.dto.ConfiguracaoDtos.TaxasRequest;
 import com.vendaagua.model.Configuracao;
 import com.vendaagua.service.ConfiguracaoService;
 import jakarta.validation.Valid;
@@ -27,9 +27,9 @@ public class ConfiguracaoController {
         return configuracaoService.atualizarMeta(request);
     }
 
-    @PutMapping("/taxa-ausencia")
+    @PutMapping("/taxas")
     @PreAuthorize("hasRole('ADMIN')")
-    public Configuracao atualizarTaxaAusencia(@Valid @RequestBody TaxaAusenciaRequest request) {
-        return configuracaoService.atualizarTaxaAusencia(request);
+    public Configuracao atualizarTaxas(@Valid @RequestBody TaxasRequest request) {
+        return configuracaoService.atualizarTaxas(request);
     }
 }

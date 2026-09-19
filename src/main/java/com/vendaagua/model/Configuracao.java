@@ -23,10 +23,14 @@ public class Configuracao {
     private BigDecimal metaFinanceira;
 
     /**
-     * Valor da taxa cobrada de quem falta no dia de venda. Sem "nullable = false"
-     * de proposito (evita quebrar ALTER TABLE em bancos com dados existentes).
+     * Valores das duas taxas de ausencia. Sem "nullable = false" de proposito
+     * (evita quebrar ALTER TABLE em bancos com dados existentes).
      */
-    @Column(name = "valor_taxa_ausencia")
+    @Column(name = "valor_taxa_justificado")
     @Builder.Default
-    private BigDecimal valorTaxaAusencia = BigDecimal.ZERO;
+    private BigDecimal valorTaxaJustificado = BigDecimal.ZERO;
+
+    @Column(name = "valor_taxa_sem_justificativa")
+    @Builder.Default
+    private BigDecimal valorTaxaSemJustificativa = BigDecimal.ZERO;
 }

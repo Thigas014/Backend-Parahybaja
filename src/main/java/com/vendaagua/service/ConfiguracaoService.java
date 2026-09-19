@@ -1,7 +1,7 @@
 package com.vendaagua.service;
 
 import com.vendaagua.dto.ConfiguracaoDtos.MetaRequest;
-import com.vendaagua.dto.ConfiguracaoDtos.TaxaAusenciaRequest;
+import com.vendaagua.dto.ConfiguracaoDtos.TaxasRequest;
 import com.vendaagua.model.Configuracao;
 import com.vendaagua.repository.ConfiguracaoRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +20,21 @@ public class ConfiguracaoService {
                 .orElseGet(() -> configuracaoRepository.save(
                         Configuracao.builder()
                                 .metaFinanceira(BigDecimal.ZERO)
-                                .valorTaxaAusencia(BigDecimal.ZERO)
+                                .valorTaxaJustificado(BigDecimal.ZERO)
+                                .valorTaxaSemJustificativa(BigDecimal.ZERO)
                                 .build()));
 
-        // Registro criado antes da coluna valor_taxa_ausencia existir: conserta e salva.
-        if (configuracao.getValorTaxaAusencia() == null) {
-            configuracao.setValorTaxaAusencia(BigDecimal.ZERO);
+        // Registro criado antes dessas colunas existirem: conserta e salva.
+        boolean precisaSalvar = false;
+        if (configuracao.getValorTaxaJustificado() == null) {
+            configuracao.setValorTaxaJustificado(BigDecimal.ZERO);
+            precisaSalvar = true;
+        }
+        if (configuracao.getValorTaxaSemJustificativa() == null) {
+            configuracao.setValorTaxaSemJustificativa(BigDecimal.ZERO);
+            precisaSalvar = true;
+        }
+        if (precisaSalvar) {
             configuracao = configuracaoRepository.save(configuracao);
         }
 
@@ -38,9 +47,10 @@ public class ConfiguracaoService {
         return configuracaoRepository.save(configuracao);
     }
 
-    public Configuracao atualizarTaxaAusencia(TaxaAusenciaRequest request) {
+    public Configuracao atualizarTaxas(TaxasRequest request) {
         Configuracao configuracao = obterConfiguracao();
-        configuracao.setValorTaxaAusencia(request.valorTaxaAusencia());
+        configuracao.setValorTaxaJustificado(request.valorTaxaJustificado());
+        configuracao.setValorTaxaSemJustificativa(request.valorTaxaSemJustificativa());
         return configuracaoRepository.save(configuracao);
     }
 }

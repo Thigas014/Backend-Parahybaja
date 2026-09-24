@@ -21,7 +21,7 @@ spring:
 app:
   jwt:
     secret: ${JWT_SECRET:TROQUE_ESTA_CHAVE_SECRETA_POR_UMA_BEM_LONGA_E_SEGURA_EM_PRODUCAO_123456}
-    expiration-ms: 86400000 # 24h
+    expiration-ms: 14400000 # 4h
 
 cors:
   allowed-origins: ${CORS_ORIGIN:http://localhost:5173}

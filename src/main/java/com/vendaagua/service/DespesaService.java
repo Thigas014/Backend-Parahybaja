@@ -22,12 +22,18 @@ public class DespesaService {
     }
 
     public Despesa criar(Usuario admin, CriarDespesaRequest request) {
-        Despesa despesa = Despesa.builder()
+        Despesa.DespesaBuilder builder = Despesa.builder()
                 .descricao(request.descricao())
                 .valor(request.valor())
-                .registradoPor(admin)
-                .build();
-        return despesaRepository.save(despesa);
+                .registradoPor(admin);
+
+        if (request.data() != null) {
+            // Fixa no meio-dia da data informada, so pra manter a data
+            // correta independente de fuso — nao usamos hora especifica.
+            builder.dataHora(request.data().atTime(12, 0));
+        }
+
+        return despesaRepository.save(builder.build());
     }
 
     public void excluir(Long id) {

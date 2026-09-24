@@ -25,32 +25,28 @@ public class DashboardService {
     private final DespesaRepository despesaRepository;
     private final PresencaRepository presencaRepository;
     private final ConfiguracaoService configuracaoService;
-    private final VendaService vendaService;
     private final DiaDeVendaService diaDeVendaService;
 
     public DashboardResponse gerarDashboard() {
         Configuracao configuracao = configuracaoService.obterConfiguracao();
         BigDecimal meta = configuracao.getMetaFinanceira();
 
-        // A "semana atual" e ancorada na PROXIMA venda marcada no calendario
-        // (a que ainda vai acontecer) — assim, tudo que entra ANTES do sabado
-        // (aportes, taxas pagas, etc.) ja conta pra meta daquele sabado que
-        // esta por vir, sem precisar esperar o dia chegar.
-        // So cai pro ultimo sabado que ja passou se nao houver nenhuma data
-        // futura marcada (ex: semana ja fechada e a proxima ainda nao foi
-        // agendada). Se nao houver nenhuma data marcada nunca, cai no fallback
-        // por calculo de calendario civil.
+        // A "semana atual" agora e sempre uma semana de calendario FIXA
+        // (domingo a sabado), calculada a partir de hoje — nao depende de
+        // nenhuma data marcada no calendario. Isso garante que a meta so
+        // muda de semana quando o domingo realmente chega, e nao no momento
+        // em que o admin marca uma data nova (bug corrigido).
+        LocalDate hoje = LocalDate.now();
+        int diasDesdeDomingo = hoje.getDayOfWeek().getValue() % 7; // domingo=0, segunda=1 ... sabado=6
+        LocalDate inicioSemana = hoje.minusDays(diasDesdeDomingo);
+        LocalDate fimSemana = inicioSemana.plusDays(6);
+
+        // A "proxima venda marcada" continua vindo do calendario — usada so
+        // pra mostrar avisos ("venda de hoje", "proxima venda dia X"), sem
+        // influenciar o calculo da meta em si.
         LocalDate proximaVendaMarcada = diaDeVendaService.proximaDataMarcada()
                 .map(DiaDeVenda::getData)
                 .orElse(null);
-
-        LocalDate fimSemana = proximaVendaMarcada != null
-                ? proximaVendaMarcada
-                : diaDeVendaService.ultimaDataMarcada()
-                        .map(DiaDeVenda::getData)
-                        .orElseGet(vendaService::ultimoSabado);
-
-        LocalDate inicioSemana = fimSemana.minusDays(6);
 
         LocalDateTime inicioDateTime = inicioSemana.atStartOfDay();
         LocalDateTime fimDateTime = fimSemana.atTime(LocalTime.MAX);

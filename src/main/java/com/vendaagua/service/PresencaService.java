@@ -6,7 +6,6 @@ import com.vendaagua.exception.RecursoNaoEncontradoException;
 import com.vendaagua.exception.RegraNegocioException;
 import com.vendaagua.model.Configuracao;
 import com.vendaagua.model.Presenca;
-import com.vendaagua.model.StatusPresenca;
 import com.vendaagua.model.Usuario;
 import com.vendaagua.repository.PresencaRepository;
 import lombok.RequiredArgsConstructor;

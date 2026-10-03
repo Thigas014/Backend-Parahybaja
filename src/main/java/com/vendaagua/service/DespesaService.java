@@ -36,6 +36,20 @@ public class DespesaService {
         return despesaRepository.save(builder.build());
     }
 
+    public Despesa atualizar(Long id, CriarDespesaRequest request) {
+        Despesa despesa = despesaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Despesa nao encontrada"));
+
+        despesa.setDescricao(request.descricao());
+        despesa.setValor(request.valor());
+
+        if (request.data() != null) {
+            despesa.setDataHora(request.data().atTime(12, 0));
+        }
+
+        return despesaRepository.save(despesa);
+    }
+
     public void excluir(Long id) {
         Despesa despesa = despesaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Despesa nao encontrada"));

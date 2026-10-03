@@ -2,8 +2,10 @@ package com.vendaagua.service;
 
 import com.vendaagua.dto.VendaDtos.RegistrarFechamentoRequest;
 import com.vendaagua.exception.RecursoNaoEncontradoException;
+import com.vendaagua.exception.RegraNegocioException;
 import com.vendaagua.model.Usuario;
 import com.vendaagua.model.Venda;
+import com.vendaagua.repository.DiaDeVendaRepository;
 import com.vendaagua.repository.VendaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,9 +20,15 @@ import java.util.List;
 public class VendaService {
 
     private final VendaRepository vendaRepository;
+    private final DiaDeVendaRepository diaDeVendaRepository;
 
     /** Apenas administrador registra o fechamento de caixa do dia (por denominacao + pix). */
     public Venda registrarFechamento(Usuario admin, RegistrarFechamentoRequest request) {
+        if (diaDeVendaRepository.findByData(request.data()).isEmpty()) {
+            throw new RegraNegocioException(
+                    "Essa data não está marcada no calendário como dia de venda. Marque-a no Calendário antes de lançar o fechamento.");
+        }
+
         Venda venda = Venda.builder()
                 .data(request.data())
                 .notas2(request.notas2())

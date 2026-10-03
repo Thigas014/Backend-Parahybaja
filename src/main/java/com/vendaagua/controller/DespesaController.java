@@ -35,6 +35,12 @@ public class DespesaController {
         return DespesaResponse.from(despesaService.criar(admin, request));
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public DespesaResponse atualizar(@PathVariable Long id, @Valid @RequestBody CriarDespesaRequest request) {
+        return DespesaResponse.from(despesaService.atualizar(id, request));
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public void excluir(@PathVariable Long id) {

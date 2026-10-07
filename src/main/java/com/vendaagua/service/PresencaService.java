@@ -6,6 +6,7 @@ import com.vendaagua.exception.RecursoNaoEncontradoException;
 import com.vendaagua.exception.RegraNegocioException;
 import com.vendaagua.model.Configuracao;
 import com.vendaagua.model.Presenca;
+import com.vendaagua.model.StatusPresenca;
 import com.vendaagua.model.Usuario;
 import com.vendaagua.repository.PresencaRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,10 +54,12 @@ public class PresencaService {
 
     /**
      * Admin define o status oficial de um membro numa data: PRESENTE,
-     * JUSTIFICADO ou AUSENTE. A taxa aplicada depende do status:
+     * JUSTIFICADO, AUSENTE, ou null pra DESMARCAR (volta pro estado
+     * pendente, como se o admin ainda nao tivesse avaliado). A taxa
+     * aplicada depende do status:
      *  - JUSTIFICADO -> valorTaxaJustificado
      *  - AUSENTE -> valorTaxaSemJustificativa
-     *  - PRESENTE -> sem taxa (remove taxa pendente, mantem se ja paga)
+     *  - PRESENTE ou null -> sem taxa (remove taxa pendente, mantem se ja paga)
      * O valor e travado no momento da decisao (nao muda se o admin alterar
      * a configuracao das taxas depois).
      */
@@ -69,24 +72,19 @@ public class PresencaService {
 
         presenca.setStatus(request.status());
 
-        Configuracao configuracao = configuracaoService.obterConfiguracao();
+        if (request.status() == StatusPresenca.JUSTIFICADO || request.status() == StatusPresenca.AUSENTE) {
+            Configuracao configuracao = configuracaoService.obterConfiguracao();
+            BigDecimal valorTaxa = request.status() == StatusPresenca.JUSTIFICADO
+                    ? configuracao.getValorTaxaJustificado()
+                    : configuracao.getValorTaxaSemJustificativa();
 
-        switch (request.status()) {
-            case JUSTIFICADO -> {
-                if (presenca.getTaxaValor() == null || !Boolean.TRUE.equals(presenca.getTaxaPaga())) {
-                    presenca.setTaxaValor(configuracao.getValorTaxaJustificado());
-                }
+            if (presenca.getTaxaValor() == null || !Boolean.TRUE.equals(presenca.getTaxaPaga())) {
+                presenca.setTaxaValor(valorTaxa);
             }
-            case AUSENTE -> {
-                if (presenca.getTaxaValor() == null || !Boolean.TRUE.equals(presenca.getTaxaPaga())) {
-                    presenca.setTaxaValor(configuracao.getValorTaxaSemJustificativa());
-                }
-            }
-            case PRESENTE -> {
-                // Vira presente: remove taxa pendente (mas mantem se ja tiver sido paga, pra nao sumir do historico).
-                if (!Boolean.TRUE.equals(presenca.getTaxaPaga())) {
-                    presenca.setTaxaValor(null);
-                }
+        } else {
+            // PRESENTE ou desmarcado (null): remove taxa pendente (mas mantem se ja tiver sido paga, pra nao sumir do historico).
+            if (!Boolean.TRUE.equals(presenca.getTaxaPaga())) {
+                presenca.setTaxaValor(null);
             }
         }
 

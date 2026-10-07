@@ -14,10 +14,13 @@ public class PresencaDtos {
             @NotBlank String justificativa
     ) {}
 
-    /** Admin define o status oficial (PRESENTE, JUSTIFICADO ou AUSENTE) de um membro. */
+    /**
+     * Admin define o status oficial (PRESENTE, JUSTIFICADO ou AUSENTE) de um
+     * membro. status = null significa "desmarcar" (volta pro estado pendente).
+     */
     public record MarcarPresencaRequest(
             @NotNull Long usuarioId,
             @NotNull LocalDate data,
-            @NotNull StatusPresenca status
+            StatusPresenca status
     ) {}
 }

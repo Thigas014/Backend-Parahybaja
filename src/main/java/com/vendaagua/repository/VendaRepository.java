@@ -1,5 +1,6 @@
 package com.vendaagua.repository;
 
+import com.vendaagua.model.Usuario;
 import com.vendaagua.model.Venda;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +15,8 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
     List<Venda> findAllByOrderByDataDesc();
 
     List<Venda> findByDataBetweenOrderByDataDesc(LocalDate inicio, LocalDate fim);
+
+    boolean existsByRegistradoPor(Usuario usuario);
 
     @Query("SELECT COALESCE(SUM(" +
            "COALESCE(v.notas2,0) + COALESCE(v.notas5,0) + COALESCE(v.notas10,0) + COALESCE(v.notas20,0) + COALESCE(v.notas50,0) + " +

@@ -1,6 +1,7 @@
 package com.vendaagua.repository;
 
 import com.vendaagua.model.Aporte;
+import com.vendaagua.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,8 @@ import java.util.List;
 public interface AporteRepository extends JpaRepository<Aporte, Long> {
 
     List<Aporte> findAllByOrderByDataHoraDesc();
+
+    boolean existsByRegistradoPor(Usuario usuario);
 
     @Query("SELECT COALESCE(SUM(a.valor),0) FROM Aporte a")
     BigDecimal totalAportes();

@@ -1,6 +1,7 @@
 package com.vendaagua.repository;
 
 import com.vendaagua.model.DiaDeVenda;
+import com.vendaagua.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -10,6 +11,8 @@ import java.util.Optional;
 public interface DiaDeVendaRepository extends JpaRepository<DiaDeVenda, Long> {
 
     List<DiaDeVenda> findByDataBetweenOrderByDataAsc(LocalDate inicio, LocalDate fim);
+
+    boolean existsByCriadoPor(Usuario usuario);
 
     List<DiaDeVenda> findAllByOrderByDataAsc();
 

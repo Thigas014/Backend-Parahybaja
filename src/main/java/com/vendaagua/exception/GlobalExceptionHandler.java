@@ -2,6 +2,7 @@ package com.vendaagua.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +29,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.FORBIDDEN, "Acesso negado.");
     }
 
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<Object> handleDisabled(DisabledException ex) {
+        return build(HttpStatus.UNAUTHORIZED, "Esta conta está desativada. Fale com o administrador.");
+    }
+    
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<Object> handleAuth(Exception ex) {
         return build(HttpStatus.UNAUTHORIZED, "Credenciais invalidas.");

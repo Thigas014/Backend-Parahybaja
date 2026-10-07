@@ -17,6 +17,8 @@ public interface PresencaRepository extends JpaRepository<Presenca, Long> {
 
     Optional<Presenca> findByDataAndUsuario(LocalDate data, Usuario usuario);
 
+    boolean existsByUsuario(Usuario usuario);
+
     @Query("SELECT COALESCE(SUM(p.taxaValor),0) FROM Presenca p " +
            "WHERE p.taxaPaga = true AND p.data BETWEEN :inicio AND :fim")
     BigDecimal totalTaxasPagasPorPeriodo(@Param("inicio") LocalDate inicio, @Param("fim") LocalDate fim);

@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -46,7 +47,8 @@ public class UsuarioController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void excluir(@PathVariable Long id) {
-        usuarioService.excluir(id);
+    public Map<String, Boolean> excluir(@PathVariable Long id) {
+        boolean excluidoDeVerdade = usuarioService.excluir(id);
+        return Map.of("excluido", excluidoDeVerdade);
     }
 }

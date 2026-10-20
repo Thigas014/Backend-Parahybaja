@@ -38,6 +38,18 @@ public class VendaController {
         return VendaResponse.from(vendaService.atualizarFechamento(id, request));
     }
 
+    @PatchMapping("/{id}/ocultar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public VendaResponse ocultar(@PathVariable Long id) {
+        return VendaResponse.from(vendaService.ocultar(id));
+    }
+
+    @PatchMapping("/{id}/desocultar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public VendaResponse desocultar(@PathVariable Long id) {
+        return VendaResponse.from(vendaService.desocultar(id));
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public void excluir(@PathVariable Long id) {

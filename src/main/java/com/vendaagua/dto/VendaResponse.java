@@ -29,7 +29,8 @@ public record VendaResponse(
         BigDecimal valorTotal,
 
         String registradoPorNome,
-        LocalDateTime dataHora
+        LocalDateTime dataHora,
+        boolean oculto
 ) {
     public static VendaResponse from(Venda v) {
         return new VendaResponse(
@@ -42,7 +43,8 @@ public record VendaResponse(
                 v.getValorMoedas(),
                 v.getValorTotal(),
                 v.getRegistradoPor().getNome(),
-                v.getDataHora()
+                v.getDataHora(),
+                v.isOculto()
         );
     }
 }

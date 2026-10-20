@@ -64,6 +64,20 @@ public class VendaService {
         return vendaRepository.save(venda);
     }
 
+    /** Oculta o fechamento apenas na tela principal; os dados financeiros permanecem intactos. */
+    public Venda ocultar(Long id) {
+        Venda venda = buscarPorId(id);
+        venda.setOculto(true);
+        return vendaRepository.save(venda);
+    }
+
+    /** Reexibe um fechamento anteriormente oculto. */
+    public Venda desocultar(Long id) {
+        Venda venda = buscarPorId(id);
+        venda.setOculto(false);
+        return vendaRepository.save(venda);
+    }
+
     public void excluir(Long id) {
         Venda venda = buscarPorId(id);
         vendaRepository.delete(venda);

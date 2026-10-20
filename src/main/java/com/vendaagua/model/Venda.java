@@ -85,6 +85,11 @@ public class Venda {
     @Builder.Default
     private BigDecimal moedas005 = BigDecimal.ZERO;
 
+    /** Indica se o fechamento deve ficar oculto na tela principal, sem removê-lo do histórico. */
+    @Column(name = "oculto", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean oculto = false;
+
     @Column(name = "valor_pix")
     @Builder.Default
     private BigDecimal valorPix = BigDecimal.ZERO;
